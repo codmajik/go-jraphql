@@ -95,5 +95,8 @@ func (ql *JQL) UnmarshalJSON(b []byte) error {
 		}
 	}
 
+	if ql.ActionType == "" {
+		return errors.New("CONFUSED: which action @query or mutation. none specified")
+	}
 	return nil
 }
