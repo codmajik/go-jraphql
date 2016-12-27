@@ -6,23 +6,23 @@ import (
 )
 
 const (
-	JQLActionMutation = "@mutate"
-	JQLActionQuery    = "@query"
+	QueryActionMutation = "@mutate"
+	QueryActionQuery    = "@query"
 )
 
 type bfld struct {
-	FieldName string      `json:"@name,omitempty"`
-	AliasName string      `json:"@alias,omitempty"`
-	Fields    []*JQLField `json:"@fields,omitempty"`
+	FieldName string        `json:"@name,omitempty"`
+	AliasName string        `json:"@alias,omitempty"`
+	Fields    []*QueryField `json:"@fields,omitempty"`
 }
 
-type JQLField struct {
+type QueryField struct {
 	FieldName string
 	AliasName string
-	Fields    []*JQLField
+	Fields    []*QueryField
 }
 
-func (field *JQLField) UnmarshalJSON(b []byte) error {
+func (field *QueryField) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, &field.FieldName)
 	if err == nil {
 		return nil
@@ -37,19 +37,19 @@ func (field *JQLField) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-func (j *JQLField) String() string {
+func (j *QueryField) String() string {
 	return j.FieldName
 }
 
-type JQL struct {
+type Query struct {
 	ActionType string
 	Action     string
 	Args       map[string]interface{}
-	Fields     []*JQLField
+	Fields     []*QueryField
 	Extra      map[string]interface{}
 }
 
-func (ql *JQL) UnmarshalJSON(b []byte) error {
+func (ql *Query) UnmarshalJSON(b []byte) error {
 	jJ := make(map[string]json.RawMessage)
 
 	if err := json.Unmarshal(b, &jJ); err != nil {
@@ -58,9 +58,9 @@ func (ql *JQL) UnmarshalJSON(b []byte) error {
 
 	for key, item := range jJ {
 		switch key {
-		case JQLActionQuery:
+		case QueryActionQuery:
 			fallthrough
-		case JQLActionMutation:
+		case QueryActionMutation:
 			if ql.ActionType != "" {
 				return errors.New("CONFUSED: which action @query or mutation. make up you mind")
 			}
@@ -77,7 +77,7 @@ func (ql *JQL) UnmarshalJSON(b []byte) error {
 			}
 
 		case "@fields":
-			ql.Fields = make([]*JQLField, 0)
+			ql.Fields = make([]*QueryField, 0)
 			if err := json.Unmarshal(item, &ql.Fields); err != nil {
 				return errors.New("@fields must be a map of string and/or field descriptions")
 			}

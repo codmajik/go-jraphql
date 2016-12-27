@@ -35,30 +35,13 @@ const QUERY = `{
     }
 }`
 
-func printFields(t *testing.T, f []*JQLField) {
-	for _, v := range f {
-		print(v.FieldName, "\t", v.AliasName)
-		if len(v.Fields) > 0 {
-			printFields(t, v.Fields)
-		}
-	}
-}
-
 func TestQuery(t *testing.T) {
-	r := make(map[string]*JQL)
+	r := make(map[string]*Query)
 	err := json.Unmarshal([]byte(QUERY), &r)
 	if err != nil {
 		t.Error(err)
 		t.Failed()
 	}
 
-	for k, v := range r {
-		println(k, v.Action)
-		printFields(t, v.Fields)
-		for l, a := range v.Args {
-			println(l, ".", v.Action, "=>", a)
-		}
-
-	}
-
+	// add more test
 }
