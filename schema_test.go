@@ -1,5 +1,10 @@
 package gojraphql
 
+import (
+	"bytes"
+	"testing"
+)
+
 const SCHEMA = `{
   "@schema": {
     "enumStatus": {
@@ -20,10 +25,8 @@ const SCHEMA = `{
       ]
     },
     "userInfo": {
-      "id": {
-        "$type": "int!",
-        "readonly": true
-      },
+      "id": { "$type": "int!" },
+      "fullName": "str#",
       "firstName": "str!",
       "lastName": "str",
       "address": "$addressInfo",
@@ -34,19 +37,25 @@ const SCHEMA = `{
     }
   },
   "@query": {
-    "listUsers": {
-        "@return": {
-        "arrayOf": "$userInfo"
-        },
+    "allFriends": {
+      "@return": {
+        "friendCount": "int",
+        "friends":["$userInfo"],
+        "lastUpdated": "str"
+      }
+    },
+    "me": {
+      "@return": "$userInfo"
+    },
+    "allUsers": {
+        "@return": ["$userInfo", "int"],
         "@args": {
         "limit": "int",
         "count": "int"
         }
     },
     "searchUsers": {
-        "@return": {
-        "arrayOf": "$userInfo"
-        },
+        "@return": ["$userInfo"],
         "@args": {
         "name": "str!"
         }
@@ -56,6 +65,18 @@ const SCHEMA = `{
       "saveUser": {
         "@return": "$userInfo",
         "@args": "$userInfo"
+      },
+      "updateUser": {
+        "@return": "$userInfo",
+        "@args": {
+          "id": "str!",
+          "values":"$userInfo"
+        }
       }
   }
 }`
+
+func TestSchema(t *testing.T) {
+	s, err := NewSchema(bytes.NewBufferString(SCHEMA))
+	println(s, err)
+}

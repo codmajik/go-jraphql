@@ -1,5 +1,6 @@
 package gojraphql
 
+// int | str | float | bool | enum | object
 import (
 	"errors"
 )
@@ -7,52 +8,47 @@ import (
 //ErrTypeRequierd error when a required field/argument is ommited
 var ErrTypeRequierd = errors.New("REQUIRED")
 
-type JraphQLType interface {
+type SchemaItemType interface {
 	Validate(v interface{}) error
 }
 
 // Generics would have worked wonderfully here; but ....
-type JraphQLInt struct {
-	Required bool
-	Nullable bool
-}
+type Int struct{}
 
-func (j *JraphQLInt) Validate(v interface{}) error {
+func (j *Int) Validate(v interface{}) error {
 	_, ok := v.(int)
 	if ok {
 		return nil
 	}
 
-	if j.Required {
-		return errors.New("Required")
-	}
-
-	if v == nil && j.Nullable {
-		return nil
-	}
-
-	return errors.New("cannot be null")
+	return errors.New("NotAString")
 }
 
 // Generics would have worked wonderfully here; but ....
-type JraphQLStr struct {
-	Required bool
-	Nullable bool
+type Str struct{}
+
+func (j *Str) Validate(v interface{}) error {
+	_, ok := v.(string)
+	if ok {
+		return nil
+	}
+	return errors.New("cannot be null")
 }
 
-func (j *JraphQLStr) Validate(v interface{}) error {
-	_, ok := v.(int)
+type Enum struct {
+	Values map[string]interface{}
+}
+
+func (e *Enum) Validate(v interface{}) error {
+	key, ok := v.(string)
+	if !ok {
+		return errors.New("NOT valid enum value must be string")
+	}
+
+	_, ok = e.Values[key]
 	if ok {
 		return nil
 	}
 
-	if j.Required {
-		return errors.New("Required")
-	}
-
-	if v == nil && j.Nullable {
-		return nil
-	}
-
-	return errors.New("cannot be null")
+	return errors.New("Invalid enum value")
 }
